@@ -7,6 +7,44 @@ local canStartJob = true
 local activeBlip = nil
 local activeDeliveryZone = nil
 
+function SetNextDeliveryPoint()
+    if currentDelivery > packagesToDeliver then
+        FinishCourierJob()
+        return
+    end
+
+    local nextPoint = deliveryPoints[currentDelivery]
+
+    if DoesBlipExist(activeBlip) then
+        RemoveBlip(activeBlip)
+    end
+
+    activeBlip = AddBlipForCoord(nextPoint.x, nextPoint.y, nextPoint.z)
+    SetBlipSprite(activeBlip, 1)
+    SetBlipScale(activeBlip, 1.0)
+    SetBlipColour(activeBlip, 5)
+    SetBlipRoute(activeBlip, true)
+
+    if activeDeliveryZone then
+        exports.ox_target:removeZone(activeDeliveryZone)
+    end
+
+    activeDeliveryZone = exports.ox_target:addSphereZone({
+        coords = nextPoint,
+        radius = 2.0,
+        debug = false, 
+        options = {
+            {
+                label = "Oddaj paczkę",
+                icon = "fa-solid fa-box",
+                onSelect = function()
+                    DeliverPackage()
+                end
+            }
+        }
+    })
+end
+
 function CreateCourierNPC()
     local npcModel = Config.NPC.model
     local npcCoords = Config.NPC.coords
@@ -65,56 +103,14 @@ function StartCourierJob()
 
     lib.notify({title = 'Kurier', description = 'Rozpocząłeś pracę! Jedź do pierwszego miejsca dostawy.', type = 'success'})
 
+
+    TriggerServerEvent('courier:setJobStatus', true)
+
     SetNextDeliveryPoint()
 end
 
-function SetNextDeliveryPoint()
-    if currentDelivery > packagesToDeliver then
-        FinishCourierJob()
-        return
-    end
-
-    local nextPoint = deliveryPoints[currentDelivery]
-
-    if DoesBlipExist(activeBlip) then
-        RemoveBlip(activeBlip)
-    end
-
-    activeBlip = AddBlipForCoord(nextPoint.x, nextPoint.y, nextPoint.z)
-    SetBlipSprite(activeBlip, 1)
-    SetBlipScale(activeBlip, 1.0)
-    SetBlipColour(activeBlip, 5)
-    SetBlipRoute(activeBlip, true)
-
-    if activeDeliveryZone then
-        exports.ox_target:removeZone(activeDeliveryZone)
-    end
-
-    activeDeliveryZone = exports.ox_target:addSphereZone({
-        coords = nextPoint,
-        radius = 2.0,
-        debug = false, 
-        options = {
-            {
-                label = "Oddaj paczkę",
-                icon = "fa-solid fa-box",
-                onSelect = function()
-                    DeliverPackage()
-                end
-            }
-        }
-    })
-end
-
 function DeliverPackage()
-    local playerPed = PlayerPedId()
-    local vehicle = GetVehiclePedIsIn(playerPed, false)
-
-    if vehicle ~= courierVehicle then
-        lib.notify({title = 'Kurier', description = 'Musisz być w pojeździe, aby oddać paczkę!', type = 'error'})
-        return
-    end
-
+    print("[DEBUG] Gracz oddaje paczkę")
     lib.progressBar({
         duration = 5000,
         label = "Oddawanie paczki...",
@@ -124,15 +120,19 @@ function DeliverPackage()
     })
 
 
-    local reward = math.random(Config.Reward.min, Config.Reward.max)
-    TriggerServerEvent('courier:giveReward', reward)
+    TriggerServerEvent('courier:giveReward')
 
     if activeDeliveryZone then
+        print("[DEBUG] Usuwanie starej strefy interakcji") 
         exports.ox_target:removeZone(activeDeliveryZone)
         activeDeliveryZone = nil
+    else
+        print("[DEBUG] Nie znaleziono aktywnej strefy interakcji")
     end
 
     currentDelivery = currentDelivery + 1
+    print("[DEBUG] Aktualna paczka:", currentDelivery, "/", packagesToDeliver) 
+
     SetNextDeliveryPoint()
 end
 
@@ -168,6 +168,8 @@ function FinishCourierJob()
                         DeleteEntity(courierVehicle)
                     end
                     lib.notify({title = 'Kurier', description = 'Praca zakończona.', type = 'success'})
+
+                    TriggerServerEvent('courier:setJobStatus', false)
 
                     if DoesBlipExist(activeBlip) then
                         RemoveBlip(activeBlip)

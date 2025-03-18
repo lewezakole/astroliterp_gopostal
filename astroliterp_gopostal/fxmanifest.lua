@@ -2,8 +2,8 @@ fx_version 'cerulean'
 game 'gta5'
 
 author '_zakolinski'
-description 'prosty skrypcior na gopostala'
-version '1.0.0'
+description 'prosty skrypcior na gopostal kurier itp itd'
+version '1.0.1'
 
 lua54 'yes'
 
