@@ -31,7 +31,7 @@ AddEventHandler('courier:giveReward', function()
     local currentTime = os.time()
 
     if lastPayout[_source] and (currentTime - lastPayout[_source]) < PAYOUT_COOLDOWN then
-        print(('courier: %s próbował otrzymać nagrodę przed upływem cooldownu!'):format(xPlayer.identifier))
+        print(('gopostal: %s próbował otrzymać nagrodę przed upływem cooldownu!'):format(xPlayer.identifier))
 
         SendDiscordWebhook({
             playerId = _source,  
@@ -61,7 +61,7 @@ AddEventHandler('courier:setJobStatus', function(status)
 end)
 
 function SendDiscordWebhook(cheaterInfo)
-    local webhookURL = "https://discord.com/api/webhooks/1351205648263548989/Rs3ezuyLrupRdg6LMZ55Yq7YCeXhAx0OfBPf-DbSERaodkILy2167kI40NjR8XLdbtiU" -- wklej tutaj link do webhooka pamietaj zeby był dobrze ustawioyn
+    local webhookURL = "tutajwklejwebhook" -- wklej tutaj link do webhooka pamietaj zeby był dobrze ustawioyn
 
     if webhookURL == "https://discord.com/api/webhooks/your-webhook-url" then
         print("Błąd podczas odpalania skryptu wkleiłeś nie poprawny link do webhooka")
