@@ -63,7 +63,7 @@ end)
 function SendDiscordWebhook(cheaterInfo)
     local webhookURL = "tutajwklejwebhook" -- wklej tutaj link do webhooka pamietaj zeby był dobrze ustawioyn
 
-    if webhookURL == "https://discord.com/api/webhooks/your-webhook-url" then
+    if webhookURL == "https://discord.com/api/webhooks/twoj-webhoczekcipeczko" then
         print("Błąd podczas odpalania skryptu wkleiłeś nie poprawny link do webhooka")
         return
     end
